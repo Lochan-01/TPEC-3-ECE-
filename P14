@@ -1,0 +1,17 @@
+#include <reg51.h>   // 8051 register definitions
+
+void delay(unsigned int ms) {
+    unsigned int i, j;
+    for (i = 0; i < ms; i++)
+        for (j = 0; j < 1275; j++);   // ~1 ms delay at 12 MHz
+}
+
+void main(void) {
+    unsigned char count = 0x00;   // Start from 0
+
+    while (1) {
+        P3 = ~count;   // Output to LEDs (active LOW → invert count)
+        delay(200);    // Visible delay
+        count++;       // Increment count (rolls over after 0xFF → 0x00)
+    }
+}
