@@ -1,0 +1,17 @@
+#include <reg51.h>   // 8051 register definitions
+
+void delay(unsigned int ms) {
+    unsigned int i, j;
+    for (i = 0; i < ms; i++)
+        for (j = 0; j < 1275; j++);   // ~1 ms delay at 12 MHz clock
+}
+
+void main(void) {
+    while (1) {
+        P3 = 0x55;   // 0101 0101 ? odd LEDs ON, even LEDs OFF
+        delay(500);
+
+        P3 = 0xAA;   // 1010 1010 ? even LEDs ON, odd LEDs OFF
+        delay(500);
+    }
+}
