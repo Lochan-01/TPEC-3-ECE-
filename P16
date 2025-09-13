@@ -1,0 +1,21 @@
+#include <reg51.h>
+
+void delay(unsigned int ms) {
+    unsigned int i, j;
+    for(i=0; i<ms; i++)
+        for(j=0; j<1275; j++);   // calibrated delay
+}
+
+void main() {
+    unsigned char pattern = 0x01;  // Start with LED1 (LSB ON)
+    unsigned char i;
+
+    while(1) {
+        pattern = 0x01;  // reset to first LED
+        for(i=0; i<8; i++) {
+            P2 = pattern;   // Output to LEDs on Port 2
+            delay(500);     // Wait
+            pattern = (pattern << 1) | 0x01; // add next LED ON
+        }
+    }
+}
