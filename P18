@@ -1,0 +1,23 @@
+#include <reg51.h>
+
+void delay(unsigned int t) {
+    unsigned int i, j;
+    for(i = 0; i < t; i++)
+        for(j = 0; j < 1275; j++);  // ~1 ms delay
+}
+
+void main() {
+    while(1) {
+        // Red ON
+        P2 = 0x01;   // 0000 0100 (P2.0 = 1, others = 0)
+        delay(2000); // 5 sec
+
+        // Yellow ON
+        P2 = 0x02;   // 0000 0010 (P2.1 = 1, others = 0)
+        delay(800); // 2 sec
+
+        // Green ON
+        P2 = 0x04;   // 0000 0001 (P2.2 = 1, others = 0)
+        delay(2000); // 5 sec
+    }
+}
