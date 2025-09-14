@@ -1,0 +1,94 @@
+#include <reg52.h>   // Header file for 8051 (AT89C52/REG52 microcontroller)
+
+/* Define data port for seven-segment display */
+#define SEGMENT_PORT P2   // Segment pins (a–g + dp) connected to Port 2
+
+/* Control pins for 4-digit multiplexing (common anode enable pins) */
+sbit DIG1 = P3^0;   // First digit (thousands)
+sbit DIG2 = P3^1;   // Second digit (hundreds)
+sbit DIG3 = P3^2;   // Third digit (tens)
+sbit DIG4 = P3^3;   // Fourth digit (units)
+
+/* Lookup table: Seven-segment codes for 0–9 (Common Anode type) */
+code unsigned char seg_code[10] =
+{
+    0xC0,  // 0
+    0xF9,  // 1
+    0xA4,  // 2
+    0xB0,  // 3
+    0x99,  // 4
+    0x92,  // 5
+    0x82,  // 6
+    0xF8,  // 7
+    0x80,  // 8
+    0x98   // 9
+};
+
+/* Delay function */
+void delay(unsigned int ms)
+{
+    unsigned int i, j;
+    for(i = 0; i < ms; i++)
+        for(j = 0; j < 1275; j++);  // Waste CPU cycles
+}
+
+/* Display one digit at a time (multiplexing) */
+void display_number(unsigned int number)
+{
+    unsigned char d1, d2, d3, d4;
+    unsigned char i;
+
+    // Split number into 4 digits
+    d1 = (number / 1000) % 10;   // Thousands
+    d2 = (number / 100) % 10;    // Hundreds
+    d3 = (number / 10) % 10;     // Tens
+    d4 = (number % 10);          // Units
+
+    // Refresh loop to maintain persistence of vision
+    for(i = 0; i < 50; i++)
+    {
+        /* Display thousands digit */
+        DIG2 = DIG3 = DIG4 = 0;  // Turn OFF other digits
+        SEGMENT_PORT = seg_code[d1];
+        DIG1 = 1;  // Enable thousands digit
+        delay(1);
+        DIG1 = 0;
+
+        /* Display hundreds digit */
+        DIG1 = DIG3 = DIG4 = 0;
+        SEGMENT_PORT = seg_code[d2];
+        DIG2 = 1;
+        delay(1);
+        DIG2 = 0;
+
+        /* Display tens digit */
+        DIG1 = DIG2 = DIG4 = 0;
+        SEGMENT_PORT = seg_code[d3];
+        DIG3 = 1;
+        delay(1);
+        DIG3 = 0;
+
+        /* Display units digit */
+        DIG1 = DIG2 = DIG3 = 0;
+        SEGMENT_PORT = seg_code[d4];
+        DIG4 = 1;
+        delay(1);
+        DIG4 = 0;
+    }
+}
+
+/* Main program */
+void main(void)
+{
+    unsigned int num_list[] = {1111,2222,3333,4444,5555,9999,2005,2023,2025,2027};
+    unsigned char i;
+
+    while(1)
+    {
+        for(i = 0; i < 10; i++)   // Loop through numbers
+        {
+            display_number(num_list[i]);  // Display number
+            delay(100);                   // Pause before switching
+        }
+    }
+}
