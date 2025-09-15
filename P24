@@ -1,0 +1,33 @@
+#include <reg52.h> 
+
+code unsigned char displaycodes[16] =  
+{ 
+0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07, 
+0x7F,0x6F,0x77,0x7C,0x39,0x5E,0x79,0x71 
+}; 
+void delay(unsigned char ms) 
+{ 
+
+unsigned char i; 
+unsigned int j; 
+for (i = 0; i < ms; i++) 
+for(j = 0; j < 1275; j++); 
+}
+void main() 
+{ 
+  int count; 
+ 
+  /* Declare Port 2 as output port */ 
+  P2 = 0xFF; 
+ 
+  /* Repeat forever */ 
+  while(1) 
+  { 
+   for(count = 0; count < 16; count++) 
+   { 
+    /* Output seven segment display code */ 
+    P2 = displaycodes[count]; 
+    delay(100); 
+   } 
+  } 
+} 
