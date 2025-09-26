@@ -1,0 +1,54 @@
+#include <reg52.h>
+
+unsigned char counter = 0;
+
+// Lookup table for common cathode 7-seg digits 0-9
+unsigned char seg_code[10] = {
+    0x3F, // 0
+    0x06, // 1
+    0x5B, // 2
+    0x4F, // 3
+    0x66, // 4
+    0x6D, // 5
+    0x7D, // 6
+    0x07, // 7
+    0x7F, // 8
+    0x6F  // 9
+};
+
+// Display digit on 7-seg (all segments on P2)
+void display_digit(unsigned char num) {
+    if(num < 10) {
+        P2 = seg_code[num]; // Send pattern to port 2
+    }
+}
+
+void main() {
+    EA = 1;   // Enable global interrupts
+    EX0 = 1;  // Enable external interrupt 0 (INT0)
+    EX1 = 1;  // Enable external interrupt 1 (INT1)
+    IT0 = 1;  // INT0 edge-triggered
+    IT1 = 1;  // INT1 edge-triggered
+
+    display_digit(counter);  // Show initial digit '0'
+
+    while(1) {
+        // Main loop does nothing; interrupts handle input
+    }
+}
+
+// INT0 interrupt: Increment counter
+void int0(void) interrupt 0 {
+    if(counter < 9) {
+        counter++;
+    }
+    display_digit(counter);
+}
+
+// INT1 interrupt: Decrement counter
+void int1(void) interrupt 2 {
+    if(counter > 0) {
+        counter--;
+    }
+    display_digit(counter);
+}
