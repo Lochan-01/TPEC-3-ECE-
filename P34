@@ -1,0 +1,98 @@
+#include <reg52.h>
+#include <string.h>
+
+#define LCD_PORT P2   // LCD data port
+
+// Define LCD control pins
+sbit LCD_RS = P3^0;    
+sbit LCD_RW = P3^1;    
+sbit LCD_EN = P3^2;    
+
+// Function prototypes
+void lcdinit(void);                    
+void lcdcmd(unsigned char);            
+void lcddata(unsigned char);           
+void delay(unsigned int ms);           
+void lcdwrite(unsigned char *string);  
+
+/* Main Function */
+void main() 
+{      
+    lcdinit();    // Initialize LCD
+
+    while(1) 
+    {
+        // Display "Hello" at 1st line, 0th position
+        lcdcmd(0x80);   // Set cursor to beginning of first line (0x80)
+        delay(2);
+        lcdwrite("Hello"); 
+        delay(500);     // Delay between updates
+
+        // Clear LCD
+        lcdcmd(0x01);   
+        delay(2);
+
+        // Display "World" at 2nd line, 5th position
+        lcdcmd(0xC0 + 5);   // 0xC0 is 2nd line, +5 shifts cursor
+        delay(2);
+        lcdwrite("World");
+        delay(500);     // Delay between updates
+
+        // Clear LCD
+        lcdcmd(0x01);   
+        delay(2);
+    }
+}
+
+/* Initialize lcd */
+void lcdinit(void) 
+{ 
+    lcdcmd(0x38);  // 8-bit mode, 2 lines, 5x7 font 
+    delay(2); 
+ 
+    lcdcmd(0x01);  // Clear display screen 
+    delay(2); 
+ 
+    lcdcmd(0x0C);  // Display ON, cursor OFF 
+    delay(2); 
+ 
+    lcdcmd(0x06);  // Auto-increment cursor after each character 
+    delay(2); 
+} 
+ 
+/* Send command byte to LCD */ 
+void lcdcmd(unsigned char value) 
+{  
+    LCD_PORT = value;  // Put command value on data pins 
+    LCD_RS = 0;        // Select command register 
+    LCD_RW = 0;        // Write mode 
+    LCD_EN = 1;        // Enable pulse 
+    LCD_EN = 0;        
+} 
+ 
+/* Write a character to LCD */ 
+void lcddata(unsigned char value) 
+{  
+    LCD_PORT = value;  
+    LCD_RS = 1;        // Data mode 
+    LCD_RW = 0;        
+    LCD_EN = 1;        
+    LCD_EN = 0;        
+} 
+ 
+/* Write string to LCD */ 
+void lcdwrite(unsigned char *string) 
+{ 
+    while(*string)           // Loop until null character 
+    { 
+        lcddata(*string++);  
+    } 
+} 
+
+/* Delay function */ 
+void delay(unsigned int ms)   
+{ 
+    unsigned int i, j; 
+    for(i=0;i<ms;i++)           
+        for(j=0;j<1275;j++);   
+} 
