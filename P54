@@ -1,0 +1,35 @@
+#include <reg52.h>
+
+#define DACPORT P2  // DAC data connected to Port 2
+
+void delay(unsigned int ms)
+{
+    unsigned int i, j;
+    for(i=0; i<ms; i++)
+        for(j=0; j<1275; j++);
+}
+
+void main()
+{
+    unsigned char value;
+    bit up = 1;  // Direction flag: 1 = counting up, 0 = counting down
+
+    DACPORT = 0x00;  // Start at 0
+
+    while(1)
+    {
+        if(up)
+        {
+            value++;
+            if(value == 0xFF) up = 0;  // Change direction at max
+        }
+        else
+        {
+            value--;
+            if(value == 0x00) up = 1;  // Change direction at min
+        }
+
+        DACPORT = value;  // Output to DAC
+        delay(1);         // Adjust delay to change frequency of triangle wave
+    }
+}
