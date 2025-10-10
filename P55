@@ -1,0 +1,28 @@
+#include <reg52.h>
+#define DACPORT P2  
+
+void delay(unsigned int ms) 
+{ 
+    unsigned int i, j; 
+    for (i = 0; i < ms; i++) 
+        for(j = 0; j < 1275; j++); 
+} 
+
+void main() 
+{  
+    unsigned char value;  
+
+    while(1) 
+    { 
+        // 8-step staircase (0 ? 255)
+        for(value = 0; value <= 255; value += 32)  
+        { 
+            DACPORT = value; 
+            delay(1);   // short delay for step visibility
+        }  
+
+        // Reset after reaching max
+        DACPORT = 0x00;  
+        delay(1);       
+    }    
+}
