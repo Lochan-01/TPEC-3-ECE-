@@ -1,0 +1,60 @@
+#include <reg52.h>
+
+#define STEP_ANGLE 1.8
+
+void delay(unsigned int value);
+void rotate_clockwise(float degrees);
+void rotate_anticlockwise(float degrees);
+
+void main()
+{
+    P2 = 0x00;  // Stepper motor connected to Port 2
+
+    rotate_clockwise(45);       // Step 1: 45° clockwise
+    delay(500);
+    
+    rotate_anticlockwise(45);   // Step 2: 45° anticlockwise
+    delay(500);
+    
+    rotate_anticlockwise(270);  // Step 3: 270° anticlockwise
+    delay(500);
+    
+    rotate_clockwise(270);      // Step 4: 270° clockwise
+
+    while(1);
+}
+
+void rotate_clockwise(float degrees)
+{
+    unsigned int steps, i;
+    // ?? FIXED SEQUENCE (now truly clockwise)
+    unsigned char sequence[] = {0x08, 0x04, 0x02, 0x01};
+    steps = (unsigned int)(degrees / STEP_ANGLE);
+
+    for(i = 0; i < steps; i++)
+    {
+        P2 = sequence[i % 4];
+        delay(10);
+    }
+}
+
+void rotate_anticlockwise(float degrees)
+{
+    unsigned int steps, i;
+    // ?? FIXED SEQUENCE (now truly anticlockwise)
+    unsigned char sequence[] = {0x01, 0x02, 0x04, 0x08};
+    steps = (unsigned int)(degrees / STEP_ANGLE);
+
+    for(i = 0; i < steps; i++)
+    {
+        P2 = sequence[i % 4];
+        delay(10);
+    }
+}
+
+void delay(unsigned int ms)
+{
+    unsigned int i, j;
+    for(i = 0; i < ms; i++)
+        for(j = 0; j < 1275; j++);
+}
